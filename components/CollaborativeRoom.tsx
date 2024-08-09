@@ -9,8 +9,9 @@ import ActiveCollaboratorList from './ActiveCollaboratorList'
 import { Input } from './ui/input'
 import Image from 'next/image'
 import { updateDocument } from '@/lib/actions/room.action'
+import Loader from './Loader'
 
-export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeRoomProps) {
+export default  function CollaborativeRoom({roomId, roomMetadata, users, currentUserType}:CollaborativeRoomProps) {
 
     const [editing, setEditing] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -28,14 +29,10 @@ export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeR
             if(documentTitle !== roomMetadata.title){
                 const updatedTitle = await updateDocument(roomId, documentTitle)
             
-            
             if(updatedTitle){
                 setEditing(false);
             }
             }
-
-
-
         } catch (error) {
             console.error(error);
             
@@ -48,7 +45,10 @@ export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeR
         const clickOut = (e:MouseEvent) =>{
             if(containerRef.current && !containerRef.current.contains(e.target as Node)){
                 setEditing(false)
+                updateDocument(roomId, documentTitle)
             }
+
+            
         }
 
         document.addEventListener('mousedown', clickOut)
@@ -56,7 +56,7 @@ export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeR
         return ()=>{
             document.removeEventListener('mousedown', clickOut)
         }
-    },[])
+    },[documentTitle, roomId])
 
     useEffect(()=>{
         if(editing && inputRef.current){
@@ -64,11 +64,11 @@ export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeR
         }
     },[editing])
 
-    const currentUserType = 'editor'
+    
 
   return (
     <RoomProvider id={roomId}>
-    <ClientSideSuspense fallback={<div>Loading…</div>}>
+    <ClientSideSuspense fallback={<Loader/>}>
     <div className='collaborative-room'>
         <Header>
             <div ref={containerRef} className=' flex w-fit justify-center items-center gap-2'>
@@ -111,7 +111,7 @@ export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeR
 
         </Header>
 
-        <Editor/>
+        <Editor roomId={roomId} currentUserType={currentUserType}/>
 
     </div>
     </ClientSideSuspense>

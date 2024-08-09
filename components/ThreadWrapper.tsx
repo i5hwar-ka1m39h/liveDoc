@@ -1,0 +1,12 @@
+import { cn } from '@/lib/utils'
+import { useIsThreadActive } from '@liveblocks/react-lexical'
+import { Thread } from '@liveblocks/react-ui'
+import React from 'react'
+
+export default function ThreadWrapper({thread}: ThreadWrapperProps) {
+    const isActive = useIsThreadActive(thread.id)
+  return (
+    <Thread thread={thread} data-state={isActive ? 'active' : null} 
+    className={cn('comment-thread border', isActive && '!border-blue-500 shadow-md', thread.resolved && 'opacity-40' )}/>
+  )
+}
