@@ -1,5 +1,5 @@
 import CollaborativeRoom from '@/components/CollaborativeRoom'
-import { getDocument } from '@/lib/actions/users.action'
+import { getDocument } from '@/lib/actions/room.action'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import React from 'react'

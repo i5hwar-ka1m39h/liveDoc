@@ -1,20 +1,100 @@
 'use client'
 
-import { ClientSideSuspense, RoomProvider } from '@liveblocks/react/suspense'
-import React, { ReactNode } from 'react'
+import { ClientSideSuspense, RoomProvider, } from '@liveblocks/react/suspense'
+import React, {  useEffect, useRef, useState } from 'react'
 import Header from './Header'
 import { SignedOut, SignInButton, SignedIn, UserButton } from '@clerk/nextjs'
 import { Editor } from './editor/Editor'
 import ActiveCollaboratorList from './ActiveCollaboratorList'
+import { Input } from './ui/input'
+import Image from 'next/image'
+import { updateDocument } from '@/lib/actions/room.action'
 
-export default function CollaborativeRoom({roomId, roomMetadata}:CollaborativeRoomProps) {
+export default  function CollaborativeRoom({roomId, roomMetadata}:CollaborativeRoomProps) {
+
+    const [editing, setEditing] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [documentTitle, setDocumentTitle] = useState(roomMetadata.title)
+
+    const containerRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLDivElement>(null)
+
+    const handleKey = async(e:React.KeyboardEvent<HTMLInputElement>)=>{
+        if(e.key === 'Enter'){
+            setLoading(true);
+        }
+
+        try {
+            if(documentTitle !== roomMetadata.title){
+                const updatedTitle = await updateDocument(roomId, documentTitle)
+            
+            
+            if(updatedTitle){
+                setEditing(false);
+            }
+            }
+
+
+
+        } catch (error) {
+            console.error(error);
+            
+        }
+
+        setLoading(false)
+    }
+
+    useEffect(()=>{
+        const clickOut = (e:MouseEvent) =>{
+            if(containerRef.current && !containerRef.current.contains(e.target as Node)){
+                setEditing(false)
+            }
+        }
+
+        document.addEventListener('mousedown', clickOut)
+
+        return ()=>{
+            document.removeEventListener('mousedown', clickOut)
+        }
+    },[])
+
+    useEffect(()=>{
+        if(editing && inputRef.current){
+            inputRef.current.focus()
+        }
+    },[editing])
+
+    const currentUserType = 'editor'
+
   return (
     <RoomProvider id={roomId}>
     <ClientSideSuspense fallback={<div>Loading…</div>}>
     <div className='collaborative-room'>
         <Header>
-            <div className=' flex w-fit justify-center items-center gap-2'>
-                <p className='document-title'>fake title</p>
+            <div ref={containerRef} className=' flex w-fit justify-center items-center gap-2'>
+                {editing && !loading ? (
+                    <Input type="text"  value={documentTitle} 
+                    onChange={e=>setDocumentTitle(e.target.value)}
+                    onKeyDown={handleKey} 
+                    placeholder='enter the heading'
+                    ref={inputRef} 
+                    disabled={!editing} 
+                    className='document-title-input'/>  
+                ): (<p className='document-title'> {documentTitle}</p>)}
+
+                {currentUserType === 'editor' && !editing && (
+                    <Image src={'/assets/icons/edit.svg'} alt='editbutton' width={24} height={24} onClick={()=>setEditing(true)} 
+                    className=' cursor-pointer'/>
+                )}
+
+                {currentUserType !== 'editor' && !editing && (
+                    <p className='view-only-tag'>view only</p>
+                )}
+                
+                {loading && <p className=' text-sm text-gray-400'>saving...</p>}
+                
+
+
             </div>
 
             <div className=' flex w-full flex-1 justify-end gap-2 sm:gap-3'>

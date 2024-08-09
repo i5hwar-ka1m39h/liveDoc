@@ -26,18 +26,3 @@ export const getClerkUser = async({userIds}:{userIds: string[]})=>{
     }
 }
 
-export const getDocument = async({ roomId, userId }: {roomId:string; userId:string})=>{
-    try {
-        const room  =  await liveblocks.getRoom(roomId)
-
-        const hasAccess = Object.keys(room.usersAccesses).includes(userId)
-
-        if(!hasAccess){
-            throw new Error('you do not have access to this room')
-        }
-
-        return parseStringify(room)
-    } catch (error) {
-        console.error(`error fetching  document: ${error}`);
-    }
-}
