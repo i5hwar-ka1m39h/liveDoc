@@ -10,6 +10,8 @@ import { Input } from './ui/input'
 import Image from 'next/image'
 import { updateDocument } from '@/lib/actions/room.action'
 import Loader from './Loader'
+import ShareModal from './ShareModal'
+
 
 export default  function CollaborativeRoom({roomId, roomMetadata, users, currentUserType}:CollaborativeRoomProps) {
 
@@ -100,6 +102,7 @@ export default  function CollaborativeRoom({roomId, roomMetadata, users, current
             <div className=' flex w-full flex-1 justify-end gap-2 sm:gap-3'>
                 <ActiveCollaboratorList/>
 
+                <ShareModal roomId={roomId} collaborators={users} creatorId={roomMetadata.creatorId} currentUserType={currentUserType}/>
                 <SignedOut>
                     <SignInButton />
                 </SignedOut>

@@ -26,3 +26,22 @@ export const getClerkUser = async({userIds}:{userIds: string[]})=>{
     }
 }
 
+export const getDocumentUsers = async({currentUser, roomId, text} :{ currentUser:string; roomId:string; text:string}) =>{
+    try {
+        const room = await liveblocks.getRoom(roomId)
+
+        const users = Object.keys(room.usersAccesses).filter((email)=> email !== currentUser);
+
+        if(text.length){
+            const lowText = text.toLowerCase()
+
+            const filteredUser  = users.filter((email:string)=> email.toLowerCase().includes(lowText))
+
+            return parseStringify(filteredUser)
+        }
+
+        return parseStringify(users)
+    } catch (error) {
+        console.error(`error fetching users: ${error}`);
+    }
+}
