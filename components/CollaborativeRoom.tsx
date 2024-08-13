@@ -20,7 +20,7 @@ export default  function CollaborativeRoom({roomId, roomMetadata, users, current
     const [documentTitle, setDocumentTitle] = useState(roomMetadata.title)
 
     const containerRef = useRef<HTMLDivElement>(null)
-    const inputRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
 
     const handleKey = async(e:React.KeyboardEvent<HTMLInputElement>)=>{
         if(e.key === 'Enter'){
